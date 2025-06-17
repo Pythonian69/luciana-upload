@@ -1,0 +1,21 @@
+{
+  "routes": [
+    { "route": "/", "allowedRoles": ["authenticated"] },
+    { "route": "/api/*", "allowedRoles": ["authenticated"] },
+    { "route": "/.auth/login/aad", "statusCode": 404 },
+    { "route": "/*", "allowedRoles": ["uploader"] }
+  ],
+  "responseOverrides": {
+    "401": {
+      "statusCode": 302,
+      "redirect": "/.auth/login/github?post_login_redirect_uri=.referrer"
+    },
+    "403": {
+      "rewrite": "/403.html"
+    }
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/api/*", "/.auth/*"]
+  }
+}

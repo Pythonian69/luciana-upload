@@ -1,25 +1,39 @@
-import logo from './logo.svg';
+import React, { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import axios from 'axios';
 import './App.css';
 
-function App() {
+export default function App() {
+  const [msg, setMsg] = useState('');
+
+  const onDrop = useCallback(async (acceptedFiles) => {
+    for (const file of acceptedFiles) {
+      try {
+        // 1. chiedi SAS token all’API
+        const { data } = await axios.get(`/api/upload?name=${encodeURIComponent(file.name)}`);
+        // 2. carica il file direttamente sul Blob
+        await axios.put(data.url, file, {
+          headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': file.type || 'application/octet-stream' }
+        });
+        setMsg(`✔️ ${file.name} caricato correttamente`);
+      } catch (err) {
+        console.error(err);
+        setMsg(`❌ Errore caricamento ${file.name}`);
+      }
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2>Upload sicuro su Azure Blob</h2>
+      <div {...getRootProps({ className: 'dropzone' })}>
+        <input {...getInputProps()} />
+        {isDragActive ? <p>Rilascia qui…</p> : <p>Trascina o clicca per scegliere un file</p>}
+      </div>
+      {msg && <p>{msg}</p>}
+      <a href="/.auth/logout">Logout</a>
     </div>
   );
 }
-
-export default App;
