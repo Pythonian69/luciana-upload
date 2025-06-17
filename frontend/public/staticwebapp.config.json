@@ -1,10 +1,22 @@
 {
   "routes": [
-    { "route": "/", "allowedRoles": ["authenticated"] },
-    { "route": "/api/*", "allowedRoles": ["authenticated"] },
+    { "route": "/",              "allowedRoles": ["authenticated"] },
+
+    /*  API protetta per qualsiasi utente autenticato */
+    { "route": "/api/*",         "allowedRoles": ["authenticated"] },
+
+    /*  Blocca Azure AD: l’unico provider è GitHub  */
     { "route": "/.auth/login/aad", "statusCode": 404 },
-    { "route": "/*", "allowedRoles": ["uploader"] }
+
+    /*  File statici JS/CSS devono essere accessibili dopo login  */
+    { "route": "/static/*",      "allowedRoles": ["authenticated"] },
+    { "route": "/*.js",          "allowedRoles": ["authenticated"] },
+    { "route": "/*.css",         "allowedRoles": ["authenticated"] },
+
+    /*  Tutto il resto (pagine dell’app) soltanto chi ha ruolo uploader  */
+    { "route": "/*",             "allowedRoles": ["uploader"] }
   ],
+
   "responseOverrides": {
     "401": {
       "statusCode": 302,
@@ -14,6 +26,7 @@
       "rewrite": "/403.html"
     }
   },
+
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": ["/api/*", "/.auth/*"]
