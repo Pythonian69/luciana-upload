@@ -9,13 +9,13 @@ export default function App() {
   const onDrop = useCallback(async (acceptedFiles) => {
     for (const file of acceptedFiles) {
       try {
-        // 1. chiedi SAS token all’API
+        // 1) chiedi SAS token
         const { data } = await axios.get(`/api/upload?name=${encodeURIComponent(file.name)}`);
-        // 2. carica il file direttamente sul Blob
+        // 2) carica il file sul Blob
         await axios.put(data.url, file, {
           headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': file.type || 'application/octet-stream' }
         });
-        setMsg(`✔️ ${file.name} caricato correttamente`);
+        setMsg(`✔️ ${file.name} caricato`);
       } catch (err) {
         console.error(err);
         setMsg(`❌ Errore caricamento ${file.name}`);

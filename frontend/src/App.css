@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+.dropzone {
+  border: 2px dashed #0078D7;
+  border-radius: 10px;
+  padding: 40px;
+  cursor: pointer;
+  margin: 40px;
+}
